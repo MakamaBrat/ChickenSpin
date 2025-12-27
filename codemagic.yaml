@@ -1,0 +1,44 @@
+workflows:
+  unity-build:
+    name: Unity Build - ChickenSpin
+    instance_type: mac_mini_m2
+    max_build_duration: 120
+    environment:
+      unity: 2022.3.62f3
+      vars:
+        BUILD_PLATFORM: android
+      groups:
+        - unity_credentials  
+    scripts:
+      - name: Activate Unity license
+        script: |
+          echo "Activating Unity license..."
+          "$UNITY_HOME/Contents/MacOS/Unity" -batchmode \
+            -quit \
+            -logFile unity_license.log \
+            -serial $UNITY_SERIAL \
+            -username $UNITY_EMAIL \
+            -password $UNITY_PASSWORD
+
+
+
+      - name: Build the project
+        script: |
+          echo "Building Unity project..."
+          "$UNITY_HOME/Contents/MacOS/Unity" -batchmode \
+            -quit \
+            -logFile unity_build.log \
+            -projectPath . \
+            -executeMethod BuildScript.PerformBuild \
+            -nographics
+      - name: Return (deactivate) Unity license
+        script: |
+          echo "Returning Unity license..."
+          "$UNITY_HOME/Contents/MacOS/Unity" \
+          -batchmode -quit -returnLicense || true
+
+    artifacts:
+      - ChickenSpin.aab
+      - ChickenSpin.apk
+      - unity_build.log
+      - unity_license.log
