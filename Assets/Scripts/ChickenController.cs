@@ -17,7 +17,10 @@ public class ChickenController : MonoBehaviour
     private CircleRotator targetCircle;
     private bool isBusy = false;
 
-    private int hunterHits = 0; // счетчик попаданий на Hunter
+    private int hunterHits = 0;          // Счётчик попаданий на Hunter
+    private int clickCount = 0;          // Счётчик кликов для LevelRegenerate
+    private bool pendingLevelRegenerate = false; // Флаг отложенной генерации уровня
+
     public MenuTravel menuTravel;
 
     public AudioSource niceShot;
@@ -26,10 +29,15 @@ public class ChickenController : MonoBehaviour
     public CountManager countManager;
 
     public Animator animator;
+
+    public RandomizeLevel randomize;
+
     private void OnEnable()
     {
         transform.position = startPos.position;
         hunterHits = 0;
+        clickCount = 0;
+        pendingLevelRegenerate = false;
         isBusy = false;
     }
 
@@ -47,6 +55,14 @@ public class ChickenController : MonoBehaviour
         clickWorldPos.z = 0f;
 
         FindNearestAnimal(clickWorldPos);
+
+        // 🔹 Увеличиваем счётчик кликов
+        clickCount++;
+        if (clickCount % 2 == 0)
+        {
+            // Устанавливаем флаг, чтобы пересоздать уровень после возвращения курицы
+            pendingLevelRegenerate = true;
+        }
     }
 
     private void FindNearestAnimal(Vector3 clickPos)
@@ -89,7 +105,7 @@ public class ChickenController : MonoBehaviour
             yield return null;
         }
 
-        // ✅ Курица достигла цели — проверяем скрипт Hunter
+        // Курица достигла цели — проверяем скрипт Hunter
         Hunter hunterScript = target.GetComponent<Hunter>();
         if (hunterScript != null)
         {
@@ -106,7 +122,6 @@ public class ChickenController : MonoBehaviour
         {
             niceShot.Play();
             countManager.AddPoints(5);
-       
             Instantiate(niceEffect, transform.position, Quaternion.identity, transform.parent);
         }
 
@@ -126,6 +141,13 @@ public class ChickenController : MonoBehaviour
         target = null;
         targetCircle = null;
         isBusy = false;
+
+        // 🔹 Проверяем флаг и вызываем генерацию уровня после возвращения
+        if (pendingLevelRegenerate)
+        {
+            pendingLevelRegenerate = false;
+            LevelRegenerate();
+        }
     }
 
     // Метод GameOver
@@ -133,5 +155,15 @@ public class ChickenController : MonoBehaviour
     {
         Debug.Log("Game Over! Попаданий на Hunter: " + hunterHits);
         menuTravel.makeMenu(5);
+    }
+
+    // Метод для перегенерации уровня
+    private void LevelRegenerate()
+    {
+        if (randomize != null)
+        {
+            randomize.RecreateLevel();
+            Debug.Log("Level regenerated after 2 clicks!");
+        }
     }
 }

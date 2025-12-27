@@ -1725,6 +1725,7 @@ MonoBehaviour:
   badShot: {fileID: 221044236}
   countManager: {fileID: 359246312}
   animator: {fileID: 477991978}
+  randomize: {fileID: 396405791}
 --- !u!1 &396405788
 GameObject:
   m_ObjectHideFlags: 0
@@ -1786,6 +1787,11 @@ MonoBehaviour:
   levels:
   - {fileID: 6161000207340200229, guid: 64d4c2bb51618e0419911971451094ff, type: 3}
   - {fileID: 1879530067302626659, guid: 999cbb36738bf9f4db171f3e7923c4cb, type: 3}
+  - {fileID: 1879530067302626659, guid: 37d20099b73272c41825313adc1ce57e, type: 3}
+  - {fileID: 1879530067302626659, guid: cfd6e661ecc00104db0f397655835b7e, type: 3}
+  - {fileID: 6161000207340200229, guid: 1bdc2d39fad8376489d76890c2029b6f, type: 3}
+  - {fileID: 1879530067302626659, guid: 6d508a3a62d2a714c9d77f9f3f9e2a51, type: 3}
+  - {fileID: 1879530067302626659, guid: 7e62b9957b32d2d4e936efd13e68e8a1, type: 3}
 --- !u!1 &414535518
 GameObject:
   m_ObjectHideFlags: 0
