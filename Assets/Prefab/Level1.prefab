@@ -995,5 +995,5 @@ MonoBehaviour:
   - {fileID: 4981374673424782487}
   - {fileID: 460034880481186993}
   radius: 22
-  speed: 1
+  speed: 1.5
   yOffset: -6
