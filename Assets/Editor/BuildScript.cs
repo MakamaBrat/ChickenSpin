@@ -18,8 +18,8 @@ public class BuildScript
         // ========================
         // Пути к файлам сборки
         // ========================
-        string aabPath = "ChikenSpin.aab";
-        string apkPath = "ChikenSpin.apk";
+        string aabPath = "ChickenSpin.aab";
+        string apkPath = "ChickenSpin.apk";
 
         // ========================
         // Настройка Android Signing через переменные окружения
