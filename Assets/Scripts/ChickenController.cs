@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using TMPro;
 
 public class ChickenController : MonoBehaviour
 {
@@ -8,6 +9,10 @@ public class ChickenController : MonoBehaviour
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float waitAtTargetTime = 1.5f;
     [SerializeField] private Transform startPos;
+
+    [Header("Lives")]
+    [SerializeField] private int maxLives = 3;
+    [SerializeField] private TMP_Text livesText;
 
     [Header("Effects")]
     public GameObject niceEffect;
@@ -17,9 +22,9 @@ public class ChickenController : MonoBehaviour
     private CircleRotator targetCircle;
     private bool isBusy = false;
 
-    private int hunterHits = 0;          // Счётчик попаданий на Hunter
-    private int clickCount = 0;          // Счётчик кликов для LevelRegenerate
-    private bool pendingLevelRegenerate = false; // Флаг отложенной генерации уровня
+    private int hunterHits = 0;
+    private int clickCount = 0;
+    private bool pendingLevelRegenerate = false;
 
     public MenuTravel menuTravel;
 
@@ -27,9 +32,7 @@ public class ChickenController : MonoBehaviour
     public AudioSource badShot;
 
     public CountManager countManager;
-
     public Animator animator;
-
     public RandomizeLevel randomize;
 
     private void OnEnable()
@@ -39,16 +42,18 @@ public class ChickenController : MonoBehaviour
         clickCount = 0;
         pendingLevelRegenerate = false;
         isBusy = false;
+
+        UpdateLivesText();
     }
 
     public void OnBackgroundClick(PointerEventData eventData)
     {
-        if (isBusy)
-            return;
+        if (isBusy) return;
 
         Vector2 localPoint;
         RectTransform rect = eventData.pointerPress.GetComponent<RectTransform>();
-        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, eventData.position, eventData.pressEventCamera, out localPoint))
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            rect, eventData.position, eventData.pressEventCamera, out localPoint))
             return;
 
         Vector3 clickWorldPos = rect.TransformPoint(localPoint);
@@ -56,13 +61,9 @@ public class ChickenController : MonoBehaviour
 
         FindNearestAnimal(clickWorldPos);
 
-        // 🔹 Увеличиваем счётчик кликов
         clickCount++;
         if (clickCount % 2 == 0)
-        {
-            // Устанавливаем флаг, чтобы пересоздать уровень после возвращения курицы
             pendingLevelRegenerate = true;
-        }
     }
 
     private void FindNearestAnimal(Vector3 clickPos)
@@ -98,22 +99,24 @@ public class ChickenController : MonoBehaviour
     {
         isBusy = true;
 
-        // Летим к цели
         while (Vector2.Distance(transform.position, target.position) > 0.05f)
         {
-            transform.position = Vector3.MoveTowards(transform.position, target.position, moveSpeed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(
+                transform.position, target.position, moveSpeed * Time.deltaTime);
             yield return null;
         }
 
-        // Курица достигла цели — проверяем скрипт Hunter
         Hunter hunterScript = target.GetComponent<Hunter>();
         if (hunterScript != null)
         {
-            Instantiate(badEffect, transform.position, Quaternion.identity, transform.parent);
             hunterHits++;
+            UpdateLivesText();
+
+            Instantiate(badEffect, transform.position, Quaternion.identity, transform.parent);
             animator.Play("MessageGo");
             badShot.Play();
-            if (hunterHits % 3 == 0)
+
+            if (hunterHits >= maxLives)
             {
                 GameOver();
             }
@@ -125,13 +128,12 @@ public class ChickenController : MonoBehaviour
             Instantiate(niceEffect, transform.position, Quaternion.identity, transform.parent);
         }
 
-        // Ждём у цели
         yield return new WaitForSeconds(waitAtTargetTime);
 
-        // Возвращаемся
         while (Vector2.Distance(transform.position, startPos.position) > 0.05f)
         {
-            transform.position = Vector3.MoveTowards(transform.position, startPos.position, moveSpeed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(
+                transform.position, startPos.position, moveSpeed * Time.deltaTime);
             yield return null;
         }
 
@@ -142,7 +144,6 @@ public class ChickenController : MonoBehaviour
         targetCircle = null;
         isBusy = false;
 
-        // 🔹 Проверяем флаг и вызываем генерацию уровня после возвращения
         if (pendingLevelRegenerate)
         {
             pendingLevelRegenerate = false;
@@ -150,20 +151,24 @@ public class ChickenController : MonoBehaviour
         }
     }
 
-    // Метод GameOver
+    private void UpdateLivesText()
+    {
+        int livesLeft = maxLives - hunterHits;
+        livesLeft = Mathf.Max(livesLeft, 0);
+
+        if (livesText != null)
+            livesText.text = livesLeft.ToString();
+    }
+
     private void GameOver()
     {
-        Debug.Log("Game Over! Попаданий на Hunter: " + hunterHits);
+        Debug.Log("Game Over! Попаданий: " + hunterHits);
         menuTravel.makeMenu(5);
     }
 
-    // Метод для перегенерации уровня
     private void LevelRegenerate()
     {
         if (randomize != null)
-        {
             randomize.RecreateLevel();
-            Debug.Log("Level regenerated after 2 clicks!");
-        }
     }
 }
