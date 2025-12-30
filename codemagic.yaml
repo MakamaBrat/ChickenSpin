@@ -4,7 +4,7 @@ workflows:
     instance_type: mac_mini_m2
     max_build_duration: 120
     environment:
-      unity: 2022.3.62f3
+      unity: 6000.0.59f2
       vars:
         BUILD_PLATFORM: android
       groups:

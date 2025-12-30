@@ -1,10 +1,11 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class CountManager : MonoBehaviour
 {
     [Header("UI")]
-    [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private Text scoreText;
 
     private int score = 0;
 

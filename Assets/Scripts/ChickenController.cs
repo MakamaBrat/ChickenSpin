@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
+using UnityEngine.UI;
 
 public class ChickenController : MonoBehaviour
 {
@@ -12,7 +13,7 @@ public class ChickenController : MonoBehaviour
 
     [Header("Lives")]
     [SerializeField] private int maxLives = 3;
-    [SerializeField] private TMP_Text livesText;
+    [SerializeField] private Text livesText;
 
     [Header("Effects")]
     public GameObject niceEffect;
